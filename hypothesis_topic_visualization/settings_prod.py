@@ -1,5 +1,6 @@
 from .settings import *
 
+ALLOWED_HOSTS += ["still-beach-75211.herokuapp.com"]
 MIDDLEWARE += ['whitenoise.middleware.WhiteNoiseMiddleware']
 
 # Simplified static file serving.
