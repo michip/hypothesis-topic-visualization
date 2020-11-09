@@ -1,1 +1,1 @@
-web: gunicorn locallibrary.wsgi --log-file -
+web: gunicorn hypothesis_topic_visualization.wsgi --log-file -
