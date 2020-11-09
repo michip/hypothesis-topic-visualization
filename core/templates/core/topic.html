@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto">
+        <h1 class="display-4">Topic {{ topic.name }}</h1>
+
+        <div class="mt-5">
+
+            {% for doc in documents %}
+
+                {% include "core/partials/_document.html" with document=doc%}
+
+            {% endfor %}
+
+
+        </div>
+    </div>
+
+{% endblock %}
