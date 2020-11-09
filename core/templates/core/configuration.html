@@ -1,0 +1,37 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+
+    <div class="container">
+        <h2>Configure the topic modelling</h2>
+        <div>
+            This configuration has to be done in order to change the way how we interpret the topic modelling
+            values. Be aware that this will change all topic-document connections and should not be used
+            too frequently.
+        </div>
+        <hr/>
+        <form method="post" action="{% url "configuration" %}" class="mt-2">
+            <h5>Update Configuration</h5>
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="thresholdInput">Threshold</label>
+                <input type="text" name="threshold" class="form-control" id="thresholdInput" placeholder="e.g. 0.5">
+                <small id="thresholdHelp" class="form-text text-muted">
+                    The sum of the probabilities of a topic will always be greater than this value
+                    unless the maximum topic amount is reached.
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="topicAmountInput">Maximum topic amount</label>
+                <input type="text" class="form-control" name="topicAmount" id="topicAmountInput" placeholder="e.g. 2">
+                <small id="topicAmountHelp" class="form-text text-muted">
+                    Maximum amount of topics.
+                </small>
+            </div>
+
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

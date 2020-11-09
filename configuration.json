@@ -1,0 +1,10 @@
+[
+  {
+    "model": "core.SiteConfiguration",
+    "pk": 1,
+    "fields": {
+      "probability_threshold": 0.5,
+      "max_associated_topics": 5
+    }
+  }
+]

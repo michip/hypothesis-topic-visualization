@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,22 +7,32 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
           integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-    <title>bootstrap4</title>
+    <link rel="stylesheet" href="{% static "core/css/main.css" %}">
+    <title>SciBeh-Topic-Visualization</title>
 </head>
 <body>
 <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
     <img class="img-fluid img rounded-circle" width="48px" height="48px"
          src="https://scibeh.org/images/icon_hu643f9205f85189d5e9b10a0c668556e1_520507_512x512_fill_lanczos_center_2.png">
-    <h5 class="my-0 mr-md-auto font-weight-normal ml-2">Scibeh-Topic-Visualization</h5>
+    <h5 class="my-0 mr-md-auto font-weight-normal ml-2">SciBeh-Topic-Visualization</h5>
     <nav class="my-2 my-md-0 mr-md-3">
-        <a class="p-2 text-dark" href="#">Features</a>
-        <a class="p-2 text-dark" href="#">Enterprise</a>
-        <a class="p-2 text-dark" href="#">Support</a>
-        <a class="p-2 text-dark" href="#">Pricing</a>
+        <a class="p-2 text-dark" href="{% url "home" %}">Home</a>
+        <a class="p-2 text-dark" href="{% url "configuration" %}">Configuration</a>
+        <a class="p-2 text-dark" href="{% url "topic-overview" %}">Topics</a>
     </nav>
     <a class="btn btn-outline-primary" href="#">Sign up</a>
 </div>
 
+{% for message in messages %}
+    <div class="container">
+        <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            {{ message }}
+        </div>
+    </div>
+{% endfor %}
 
 <main>
     {% block content %}
@@ -31,9 +42,9 @@
     <footer class="pt-4 my-md-5 pt-md-5 border-top">
         <div class="row">
             <div class="col-12 col-md">
-                <img class="mb-2" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt=""
-                     width="24" height="24">
-                <small class="d-block mb-3 text-muted">&copy; 2017-2018</small>
+                <img class="img-fluid img rounded-circle" width="24px" height="24px"
+         src="https://scibeh.org/images/icon_hu643f9205f85189d5e9b10a0c668556e1_520507_512x512_fill_lanczos_center_2.png">
+                <small class="d-block mb-3 text-muted">&copy; 2020</small>
             </div>
             <div class="col-6 col-md">
                 <h5>Features</h5>
@@ -48,20 +59,12 @@
             </div>
             <div class="col-6 col-md">
                 <h5>Resources</h5>
-                <ul class="list-unstyled text-small">
-                    <li><a class="text-muted" href="#">Resource</a></li>
-                    <li><a class="text-muted" href="#">Resource name</a></li>
-                    <li><a class="text-muted" href="#">Another resource</a></li>
-                    <li><a class="text-muted" href="#">Final resource</a></li>
-                </ul>
+
             </div>
             <div class="col-6 col-md">
                 <h5>About</h5>
                 <ul class="list-unstyled text-small">
                     <li><a class="text-muted" href="#">Team</a></li>
-                    <li><a class="text-muted" href="#">Locations</a></li>
-                    <li><a class="text-muted" href="#">Privacy</a></li>
-                    <li><a class="text-muted" href="#">Terms</a></li>
                 </ul>
             </div>
         </div>
@@ -80,5 +83,37 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
         integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
         crossorigin="anonymous"></script>
+
+
+{% block script %}
+{% endblock %}
+<script>
+    $(function () {
+
+        $(".progress").each(function () {
+
+            var value = $(this).attr('data-value');
+            var left = $(this).find('.progress-left .progress-bar');
+            var right = $(this).find('.progress-right .progress-bar');
+
+            if (value > 0) {
+                if (value <= 50) {
+                    right.css('transform', 'rotate(' + percentageToDegrees(value) + 'deg)')
+                } else {
+                    right.css('transform', 'rotate(180deg)')
+                    left.css('transform', 'rotate(' + percentageToDegrees(value - 50) + 'deg)')
+                }
+            }
+
+        })
+
+        function percentageToDegrees(percentage) {
+
+            return percentage / 100 * 360
+
+        }
+
+    });
+</script>
 </body>
 </html>
