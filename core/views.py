@@ -4,26 +4,9 @@ import datetime
 import random as rd
 from django.contrib import messages
 
-
-def get_random_topic():
-    return Topic(pk=2,
-                 name="XYZ",
-                 description="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, se")
-
-def get_random_document():
-    return Document(
-        url="https://twist.com/a/131368/ch/391926/t/1996519/",
-        doi="https://doi.org/10.1257/aer.101.3.318",
-        title="Trusted Decision-Making: Data Governance for Creating Trust in Data Science Decision Outcomes",
-        text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-        date=datetime.datetime.now(),
-        type="tweet",
-        topic_match=rd.randint(1, 100)
-    )
-
-
 def home(request):
-    return render(request, "core/home.html")
+    return render(request, "core/home.html", dict(
+        topics=Topic.objects.all(), document_count=Document.objects.count()))
 
 
 def configuration(request):
@@ -43,19 +26,31 @@ def configuration(request):
         config.max_associated_topics = topic_amount
         config.save()
 
+        DocumentInTopic.objects.all().delete()
+
+        for doc in Document.objects.all():
+            orig_probs = OriginalTopicProbabilities.objects.filter(document=doc).order_by("-probability")[
+                         :config.max_associated_topics]
+
+            current_value = 0
+            for orig_prob in orig_probs:
+                if current_value < config.probability_threshold:
+                    print(orig_prob.document, orig_prob.topic, orig_prob.probability)
+                    document_in_topic = DocumentInTopic(document=doc,
+                                    topic=orig_prob.topic, probability=orig_prob.probability)
+                    document_in_topic.save()
+                    current_value += orig_prob.probability
+
         messages.success(request, "Configuration updated successfully!")
 
         return render(request, 'core/configuration.html')
 
 
 def topic_overview(request):
-    topics = [get_random_topic() for _ in range(50)]
-
-    return render(request, "core/topic_overview.html", dict(topics=topics))
+    return render(request, "core/topic_overview.html", dict(topics=Topic.objects.all()))
 
 
 def topic(request, id):
-    current_topic = get_random_topic()
-    documents = sorted([get_random_document() for _ in range(20)], key=lambda x: x.topic_match, reverse=True)
-
-    return render(request, "core/topic.html", dict(topic=current_topic, documents=documents))
+    current_topic = get_object_or_404(Topic, pk=id)
+    documents_in_topic = DocumentInTopic.objects.filter(topic=current_topic).order_by("-probability")
+    return render(request, "core/topic.html", dict(topic=current_topic, documents_in_topic=documents_in_topic))

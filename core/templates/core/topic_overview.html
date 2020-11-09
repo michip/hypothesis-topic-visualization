@@ -2,72 +2,24 @@
 
 {% block content %}
     <div class="container">
-        <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto">
-            <h1 class="display-4">Topic List</h1>
+        <h2 class="display-4">Topic List</h2>
 
-            <div>
-                <canvas id="topicsOverview" height="50"></canvas>
-            </div>
+        <div class="mt-5">
+            <div class="list-group">
 
-            <div class="mt-5">
-                <div class="list-group">
+                {% for topic in topics %}
+                    <a href="{% url "topic" id=topic.pk %}"
+                       class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ topic.name }}</h5>
+                            <small>{{ topic.documents.count}} documents</small>
+                        </div>
+                        <p class="mb-1">{{ topic.description }}</p>
+                    </a>
+                {% endfor %}
 
-                    {% for topic in topics %}
-                        <a href="{% url "topic" id=topic.pk %}"
-                           class="list-group-item list-group-item-action flex-column align-items-start">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">{{ topic.name }}</h5>
-                                <small>3 days ago</small>
-                            </div>
-                            <p class="mb-1">{{ topic.description }}</p>
-                            <small>Donec id elit non mi porta.</small>
-                        </a>
-                    {% endfor %}
-
-                </div>
             </div>
         </div>
     </div>
-
-{% endblock %}
-
-{% block script %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/google-palette/1.1.0/palette.min.js"
-            integrity="sha512-+rKeqfKuzCrzOolK5cPvYqzEHJTEPWG1MTvH02P+MYgmw7uMyNiewzvzlPj0wOgPd10jdNAtkf8tL1aQt7RsxQ=="
-            crossorigin="anonymous"></script>
-    <script>
-        $(document).ready(function () {
-            let data = [
-                {% for topic in topics %}3{% if not forloop.last %}, {% endif %}{% endfor %}
-            ]
-            var chart = new Chart(document.getElementById("topicsOverview"), {
-                "type": "bar",
-                "data": {
-                    "labels": [
-                        {% for topic in topics %}"{{ topic.name }}"{% if not forloop.last %}, {% endif %}{% endfor %}
-                    ],
-                    "datasets": [{
-                        "data": data,
-                        backgroundColor: palette('tol-rainbow', data.length).map(function (hex) {
-                            return '#' + hex;
-                        })
-                    }]
-                },
-                "options": {
-                    legend: {
-                        display: false
-                    },
-                    "scales":
-                        {
-                            "yAxes":
-                                [
-                                    {"ticks": {"beginAtZero": true}}
-                                ]
-                        }
-                }
-            });
-        });
-    </script>
 
 {% endblock %}

@@ -1,11 +1,15 @@
-<div class="card mb-4 box-shadow mx-5">
+{% load color_extras %}
+
+<div class="card mb-2 box-shadow">
     <div class="card-body">
 
-        {% if document.topic_match %}
+        {% if probability %}
             <div class="float-right">
-                <div class="progress mx-auto" data-value='{{ document.topic_match }}'>
-                    <span class="progress-left"><span class="progress-bar" style="border-color: {{ document.topic_match_color }}"></span></span>
-                    <span class="progress-right"><span class="progress-bar" style="border-color: {{ document.topic_match_color }}"></span></span>
+                <div class="progress mx-auto" data-value='{{ probability|to_percent }}'>
+                    <span class="progress-left"><span class="progress-bar"
+                                                      style="border-color: {{ probability|to_color }}"></span></span>
+                    <span class="progress-right"><span class="progress-bar"
+                                                       style="border-color: {{ probability|to_color }}"></span></span>
                 </div>
             </div>
         {% endif %}
@@ -20,8 +24,13 @@
             {{ document.text }}
         </div>
 
-        <div class="text-right">
-            <a href="{{ document.url }}" class="">View</a>
+        <div>
+            <div class="badge badge-info">Test</div>
+            <div class="badge badge-info">Preprint</div>
+            <div class="badge badge-info">News</div>
+            <div class="float-right">
+                <a href="{{ document.url }}"><i class="fas fa-external-link-alt"></i> Original resource</a>
+            </div>
         </div>
     </div>
 </div>

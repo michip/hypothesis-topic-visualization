@@ -2,15 +2,70 @@
 
 {% block content %}
 
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Topic Visualization</h1>
+        <p class="lead">
+            This project originated from the <a href="https://www.scibeh.org/events/workshop2020/">SciBeh workshop</a>
+            and should visualizes a given topic modelling of
+            <a href="https://hypothes.is/groups/Jk8bYJdN/behsci">hypothes.is</a> annotations. You can find the list
+            of available topics <a href="{% url "topic-overview" %}">here</a>.
+        </p>
+    </div>
 
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">Topic Visualization</h1>
-    <p class="lead">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
-    </p>
-</div>
+    <div class="container">
 
-<div class="container">
+        <h4>Dataset information</h4>
+        <strong>Topics:</strong> {{ topics.count }}<br>
+        <strong>Documents:</strong> {{ document_count }}
 
-</div>
+        <hr>
+
+        <h4>Distribution of documents over topics</h4>
+
+        <div>
+            <canvas id="topicsOverview" height="90"></canvas>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/google-palette/1.1.0/palette.min.js"
+            integrity="sha512-+rKeqfKuzCrzOolK5cPvYqzEHJTEPWG1MTvH02P+MYgmw7uMyNiewzvzlPj0wOgPd10jdNAtkf8tL1aQt7RsxQ=="
+            crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let data = [
+                {% for topic in topics %}{{ topic.documents.count }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            ]
+            var chart = new Chart(document.getElementById("topicsOverview"), {
+                "type": "bar",
+                "data": {
+                    "labels": [
+                        {% for topic in topics %}"{{ topic.name }}"{% if not forloop.last %}, {% endif %}{% endfor %}
+                    ],
+                    "datasets": [{
+                        "data": data,
+                        backgroundColor: palette('tol-rainbow', data.length).map(function (hex) {
+                            return '#' + hex;
+                        })
+                    }]
+                },
+                "options": {
+                    legend: {
+                        display: false
+                    },
+                    "scales":
+                        {
+                            "yAxes":
+                                [
+                                    {"ticks": {"beginAtZero": true}}
+                                ]
+                        }
+                }
+            });
+        });
+    </script>
+
 {% endblock %}

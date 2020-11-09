@@ -2,16 +2,16 @@
 
 {% block content %}
     <div class="container">
-        <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto">
-            <h1 class="display-4">Topic {{ topic.name }}</h1>
+        <div class="">
+            <h1 class="display-4">{{ topic.name }}</h1>
 
             <div class="text-muted">{{ topic.description }}</div>
 
-            <div class="mt-5">
+            <div class="mt-2">
 
-                {% for doc in documents %}
+                {% for doc in documents_in_topic %}
 
-                    {% include "core/partials/_document.html" with document=doc %}
+                    {% include "core/partials/_document.html" with document=doc.document probability=doc.probability %}
 
                 {% endfor %}
 
@@ -20,4 +20,6 @@
         </div>
     </div>
 
+
 {% endblock %}
+
