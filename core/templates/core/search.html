@@ -1,0 +1,57 @@
+{% extends "core/base.html" %}
+{% load bootstrap_pagination %}
+
+{% block content %}
+    <div class="container">
+        <div class="">
+            <h1 class="display-4">Search</h1>
+
+            <form action="{% url "search" %}" method="get">
+                <div class="input-group md-form form-sm form-2 pl-0">
+                    <input class="form-control my-0 py-1"
+                           name="query"
+                           type="text"
+                           placeholder="Search"
+                           value="{{ form.query }}"
+                           aria-label="Search">
+                    <div class="input-group-append">
+                        <button class="input-group-btn btn btn-primary">
+                            <i class="fas fa-search text-grey" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group mt-2">
+                    <strong>Topics</strong> <br>
+                    {% for topic in topics %}
+                        <label class="mr-2">
+                            <input type="checkbox"
+                                   class="mr-1"
+                                   name="topics"
+                                   {% if topic.pk in form.topics %}checked="checked"{% endif %}
+                                   value="{{ topic.pk }}"/>{{ topic.name }}</label>
+                    {% endfor %}
+                </div>
+            </form>
+
+            {% if documents %}
+                <div class="mt-2">
+                    {% for doc in documents %}
+                        {% include "core/partials/_document.html" with document=doc %}
+                    {% endfor %}
+                </div>
+
+                <div class="mt-4">
+                    {% bootstrap_paginate documents range=10 show_first_last=True %}
+                </div>
+            {% else %}
+                <div class="text-muted">There were no results for your query.</div>
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+{% endblock %}
+

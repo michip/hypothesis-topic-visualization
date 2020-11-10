@@ -38,13 +38,17 @@
         $(document).ready(function () {
             let data = [
                 {% for topic in topics %}{{ topic.documents.count }}{% if not forloop.last %}, {% endif %}{% endfor %}
-            ]
+            ];
+            let links = [
+                {% for topic in topics %}"{% url "topic" id=topic.pk %}"{% if not forloop.last %}, {% endif %}{% endfor %}
+            ];
+            let labels = [
+                {% for topic in topics %}"{{ topic.name }}"{% if not forloop.last %}, {% endif %}{% endfor %}
+            ];
             var chart = new Chart(document.getElementById("topicsOverview"), {
                 "type": "bar",
                 "data": {
-                    "labels": [
-                        {% for topic in topics %}"{{ topic.name }}"{% if not forloop.last %}, {% endif %}{% endfor %}
-                    ],
+                    "labels": labels,
                     "datasets": [{
                         "data": data,
                         backgroundColor: palette('tol-rainbow', data.length).map(function (hex) {
@@ -56,13 +60,18 @@
                     legend: {
                         display: false
                     },
-                    "scales":
+                    scales:
                         {
                             "yAxes":
                                 [
                                     {"ticks": {"beginAtZero": true}}
                                 ]
-                        }
+                        },
+                    onClick: function (e) {
+                        let activePointLabel = this.getElementsAtEvent(e)[0]._model.label;
+                        window.location.href = links[labels.indexOf(activePointLabel)];
+                    }
+
                 }
             });
         });

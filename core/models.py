@@ -42,7 +42,7 @@ class Document(models.Model):
 class Topic(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
-    documents = models.ManyToManyField(Document, through='DocumentInTopic')
+    documents = models.ManyToManyField(Document, through='DocumentInTopic', related_name="topics")
 
 
 class DocumentInTopic(models.Model):

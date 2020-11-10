@@ -11,6 +11,40 @@ def home(request):
         topics=Topic.objects.all(), document_count=Document.objects.count()))
 
 
+def search(request):
+    context = dict(topics=Topic.objects.all(),
+                   form=dict(query="", topics=[]))
+
+    if request.method == "GET":
+        query = str(request.GET.get("query", ""))
+        page_number = request.GET.get('page')
+
+        if query:
+            topics = [int(k) for k in request.GET.getlist("topics")]
+            documents = Document.objects.filter(title__icontains=query.lower())
+
+            if topics:
+                documents = documents.filter(topics__pk__in=topics)
+        else:
+            query = ""
+            topics = []
+            documents = Document.objects.all()
+        paginator = Paginator(documents, 10)
+
+        try:
+            page_obj = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        context["documents"] = page_obj
+        context["form"]["query"] = query
+        context["form"]["topics"] = topics
+
+        return render(request, "core/search.html", context)
+
+
 def configuration(request):
     if request.method == "GET":
         return render(request, 'core/configuration.html')
@@ -38,7 +72,7 @@ def configuration(request):
             for orig_prob in orig_probs:
                 if current_value < config.probability_threshold:
                     document_in_topic = DocumentInTopic(document=doc,
-                                    topic=orig_prob.topic, probability=orig_prob.probability)
+                                                        topic=orig_prob.topic, probability=orig_prob.probability)
                     document_in_topic.save()
                     current_value += orig_prob.probability
 
