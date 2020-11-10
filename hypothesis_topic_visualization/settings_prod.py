@@ -1,5 +1,7 @@
 from .settings import *
 
+DEBUG=False
+
 ALLOWED_HOSTS += ["still-beach-75211.herokuapp.com"]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
