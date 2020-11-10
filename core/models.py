@@ -31,7 +31,7 @@ class Document(models.Model):
 
     url_identifier = models.CharField(max_length=500, unique=True)
     url = models.CharField(max_length=500)
-    doi = models.CharField(max_length=64, blank=True)
+    doi = models.CharField(max_length=128, blank=True)
     title = models.CharField(max_length=500, blank=True)
     text = models.TextField()
     date = models.DateField()
