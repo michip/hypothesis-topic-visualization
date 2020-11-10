@@ -32,7 +32,7 @@ class Document(models.Model):
     url_identifier = models.CharField(max_length=500, unique=True)
     url = models.CharField(max_length=500)
     doi = models.CharField(max_length=500, blank=True)
-    title = models.CharField(max_length=500, blank=True)
+    title = models.TextField(blank=True)
     text = models.TextField()
     date = models.DateField()
     document_type = models.CharField(choices=TYPE_CHOICES, max_length=16, default="blog")
