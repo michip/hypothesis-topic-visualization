@@ -3,6 +3,8 @@ from .models import *
 import datetime
 import random as rd
 from django.contrib import messages
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
 
 def home(request):
     return render(request, "core/home.html", dict(
@@ -35,7 +37,6 @@ def configuration(request):
             current_value = 0
             for orig_prob in orig_probs:
                 if current_value < config.probability_threshold:
-                    print(orig_prob.document, orig_prob.topic, orig_prob.probability)
                     document_in_topic = DocumentInTopic(document=doc,
                                     topic=orig_prob.topic, probability=orig_prob.probability)
                     document_in_topic.save()
@@ -52,5 +53,15 @@ def topic_overview(request):
 
 def topic(request, id):
     current_topic = get_object_or_404(Topic, pk=id)
-    documents_in_topic = DocumentInTopic.objects.filter(topic=current_topic).order_by("-probability")
-    return render(request, "core/topic.html", dict(topic=current_topic, documents_in_topic=documents_in_topic))
+
+    paginator = Paginator(DocumentInTopic.objects.filter(topic=current_topic).order_by("-probability"), 25)
+    page_number = request.GET.get('page')
+
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    return render(request, "core/topic.html", dict(topic=current_topic, documents_in_topic=page_obj))

@@ -15,23 +15,28 @@ class SiteConfiguration(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-
+    name = models.CharField(max_length=100)
 
 class Document(models.Model):
 
     TYPE_CHOICES = [
         ("tweet", "Twitter"),
+        ("webpage", "Webpage"),
+        ("preprint", "Preprint"),
+        ("news", "News"),
+        ("youtube", "YouTube"),
+        ("report", "Report"),
+        ("blog", "Blog"),
     ]
 
     url_identifier = models.CharField(max_length=500, unique=True)
     url = models.CharField(max_length=500)
-    doi = models.CharField(max_length=64)
-    title = models.CharField(max_length=500)
+    doi = models.CharField(max_length=64, blank=True)
+    title = models.CharField(max_length=500, blank=True)
     text = models.TextField()
     date = models.DateField()
-    type = models.CharField(choices=TYPE_CHOICES, max_length=16)
-    tags = models.ManyToManyField(Tag, related_name="documents")
+    document_type = models.CharField(choices=TYPE_CHOICES, max_length=16, default="blog")
+    tags = models.ManyToManyField('Tag', related_name="documents")
 
 
 class Topic(models.Model):

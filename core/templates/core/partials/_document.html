@@ -15,22 +15,23 @@
         {% endif %}
 
         <h5 class="my-0 font-weight-normal">{{ document.title }}</h5>
-
         <div class="text-muted small">
-            <i class="fas fa-clock mr-1"></i>{{ document.date }}
+            <i class="fas fa-clock mr-1"></i>{{ document.date }} &middot;
+            <a href="{{ document.url }}"><i class="fas fa-external-link-alt"></i> Original resource</a>
+
         </div>
+        <hr>
+
 
         <div class="small">
             {{ document.text }}
         </div>
 
         <div>
-            <div class="badge badge-info">Test</div>
-            <div class="badge badge-info">Preprint</div>
-            <div class="badge badge-info">News</div>
-            <div class="float-right">
-                <a href="{{ document.url }}"><i class="fas fa-external-link-alt"></i> Original resource</a>
-            </div>
+            {% for tag in document.tags.all %}
+                <div class="badge badge-info">{{ tag.name }}</div>
+            {% endfor %}
+
         </div>
     </div>
 </div>

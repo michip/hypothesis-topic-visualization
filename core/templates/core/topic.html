@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load bootstrap_pagination %}
 
 {% block content %}
     <div class="container">
@@ -10,16 +11,18 @@
             <div class="mt-2">
 
                 {% for doc in documents_in_topic %}
-
                     {% include "core/partials/_document.html" with document=doc.document probability=doc.probability %}
-
                 {% endfor %}
-
-
             </div>
-        </div>
-    </div>
 
+            <div class="mt-4">
+                {% bootstrap_paginate documents_in_topic %}
+            </div>
+
+        </div>
+
+
+    </div>
 
 {% endblock %}
 
