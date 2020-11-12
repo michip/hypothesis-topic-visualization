@@ -21,16 +21,34 @@
                     </div>
                 </div>
 
-                <div class="form-group mt-2">
-                    <strong>Topics</strong> <br>
-                    {% for topic in topics %}
-                        <label class="mr-2">
-                            <input type="checkbox"
-                                   class="mr-1"
-                                   name="topics"
-                                   {% if topic.pk in form.topics %}checked="checked"{% endif %}
-                                   value="{{ topic.pk }}"/>{{ topic.name }}</label>
-                    {% endfor %}
+
+                <div class="row mt-2">
+                    <div class="col">
+                        <label>
+                            <strong>Topics</strong> <br>
+                            <select name="topics" class="selectpicker" multiple data-live-search="true">
+                                {% for topic in topics %}
+                                    <option {% if topic.pk in form.topics %}selected="selected"{% endif %}
+                                            value="{{ topic.pk }}">{{ topic.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                    <div class="col">
+                        <label>
+                            <strong>Types</strong> <br>
+                            <select name="types" class="selectpicker" multiple data-live-search="true">
+                                {% for type in types %}
+                                    <option {% if type.0 in form.types %}selected="selected"{% endif %}
+                                            value="{{ type.0 }}">{{ type.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-1 small text-muted">
+                    Selecting nothing in the above filters will default to 'all'.
                 </div>
             </form>
 
@@ -41,9 +59,11 @@
                     {% endfor %}
                 </div>
 
-                <div class="mt-4">
-                    {% bootstrap_paginate documents range=10 show_first_last=True %}
-                </div>
+                {% if documents.paginator.num_pages > 1 %}
+                    <div class="mt-4">
+                        {% bootstrap_paginate documents range=10 show_first_last=True %}
+                    </div>
+                {% endif %}
             {% else %}
                 <div class="text-muted">There were no results for your query.</div>
             {% endif %}
@@ -53,5 +73,13 @@
 
     </div>
 
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+    <script>
+        $('.selectpicker').selectpicker();
+    </script>
 {% endblock %}
 

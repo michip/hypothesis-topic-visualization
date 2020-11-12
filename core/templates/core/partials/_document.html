@@ -14,21 +14,23 @@
             </div>
         {% endif %}
 
-        <div class="tooltip-content" style="display: none;">
-            <h5>Topic Probabilities</h5>
-            <table class="table table-striped w-100">
-                {% for rel in document.original_topic_relationships.all %}
-                    <tr>
-                        <td>
-                            <a href="{% url "topic" rel.topic.pk %}">
-                                {{ rel.topic.name }}
-                            </a>
-                        </td>
-                        <td>{{ rel.probability }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
+        {% if build_tooltip %}
+            <div class="tooltip-content" style="display: none;">
+                <h5>Topic Probabilities</h5>
+                <table class="table table-striped w-100">
+                    {% for rel in document.original_topic_relationships.all %}
+                        <tr>
+                            <td>
+                                <a href="{% url "topic" rel.topic.pk %}">
+                                    {{ rel.topic.name }}
+                                </a>
+                            </td>
+                            <td>{{ rel.probability }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
 
 
         <h6 class="my-0 font-weight-normal">{{ document.title }}</h6>
@@ -40,10 +42,11 @@
                data-target="#doc-summary-{{ document.pk }}"
                aria-expanded="false"
                aria-controls="doc-summary-{{ document.pk }}"><i class="fas fa-eye"></i> Toggle summary</a> &middot;
-            <a href="{{ document.url }}"><i class="fas fa-external-link-alt"></i> Original resource</a>
+            <a href="{{ document.url }}"><i class="fas fa-external-link-alt"></i> Original resource</a> &middot;
+            <span><i class="fas fa-clone"></i> {{ document.document_type }}</span>
 
             {% if document.doi %}
-                 &middot;
+                &middot;
                 <a href="https://doi.org/{{ document.doi }}">DOI: {{ document.doi }}</a>
             {% endif %}
         </div>

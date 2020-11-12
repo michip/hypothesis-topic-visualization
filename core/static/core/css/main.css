@@ -78,3 +78,8 @@
   border: 1px solid #7c7c7c;
   overflow-y: scroll;
 }
+
+.document-probability
+{
+  cursor: pointer;
+}

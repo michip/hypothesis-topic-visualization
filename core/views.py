@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from .models import *
 import datetime
@@ -13,23 +14,32 @@ def home(request):
 
 
 def search(request):
-    context = dict(topics=Topic.objects.all(),
+    context = dict(topics=Topic.objects.all(), types=Document.TYPE_CHOICES,
                    form=dict(query="", topics=[]))
 
     if request.method == "GET":
         query = str(request.GET.get("query", ""))
         page_number = request.GET.get('page')
 
-        if query:
-            topics = [int(k) for k in request.GET.getlist("topics")]
-            documents = Document.objects.filter(title__icontains=query.lower())
+        topics = [int(k) for k in request.GET.getlist("topics")]
+        types = [str(k) for k in request.GET.getlist("types")]
 
-            if topics:
-                documents = documents.filter(topics__pk__in=topics)
-        else:
-            query = ""
-            topics = []
-            documents = Document.objects.all()
+        documents = Document.objects.all()
+
+        if topics:
+            documents = documents.filter(topics__pk__in=topics)
+
+        if types:
+            documents = documents.filter(document_type__in=types)
+
+        if query:
+
+            filter_query = Q()
+            for word in query.lower().split():
+                filter_query |= Q(title__icontains=word)
+
+            documents = documents.filter(filter_query)
+
         paginator = Paginator(documents, 10)
 
         try:
@@ -42,6 +52,7 @@ def search(request):
         context["documents"] = page_obj
         context["form"]["query"] = query
         context["form"]["topics"] = topics
+        context["form"]["types"] = types
 
         return render(request, "core/search.html", context)
 
@@ -89,7 +100,7 @@ def topic_overview(request):
 def topic(request, id):
     current_topic = get_object_or_404(Topic, pk=id)
 
-    paginator = Paginator(DocumentInTopic.objects.filter(topic=current_topic).order_by("-probability"), 25)
+    paginator = Paginator(DocumentInTopic.objects.filter(topic=current_topic).order_by("-probability"), 10)
     page_number = request.GET.get('page')
 
     try:
