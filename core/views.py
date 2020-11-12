@@ -4,6 +4,7 @@ import datetime
 import random as rd
 from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
@@ -44,7 +45,7 @@ def search(request):
 
         return render(request, "core/search.html", context)
 
-
+@login_required
 def configuration(request):
     if request.method == "GET":
         return render(request, 'core/configuration.html')

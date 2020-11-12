@@ -38,6 +38,10 @@ class Document(models.Model):
     document_type = models.CharField(choices=TYPE_CHOICES, max_length=16, default="blog")
     tags = models.ManyToManyField('Tag', related_name="documents")
 
+    @property
+    def original_topic_relationships(self):
+        return OriginalTopicProbabilities.objects.filter(document=self).order_by('-probability')
+
 
 class Keyword(models.Model):
     value = models.CharField(max_length=128)

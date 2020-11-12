@@ -8,6 +8,12 @@
 
             <div class="text-muted">{{ topic.description }}</div>
 
+            <p class="mt-1 small">
+                {% for keyword in topic.keywords.all %}
+                    <span class="badge badge-secondary">{{ keyword.value }}</span>
+                {% endfor %}
+            </p>
+
             <div class="mt-2">
 
                 {% for doc in documents_in_topic %}
@@ -24,5 +30,41 @@
 
     </div>
 
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.js"
+            integrity="sha512-BxJRFdTKV85fhFUw+olPr0B+UEzk8FTLxRB7dAdhoQ7SXmwMECj1I4BlSmZfeoSfy0OVA8xFLTDyObu3Nv1FoQ=="
+            crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('.document-probability').click(function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                $('.probability-tooltip').remove();
+
+                let content = $(this).parents('.card-body').find('.tooltip-content').html();
+
+                let element = $('<div id="probability-tooltip-overview" class="probability-tooltip shadow rounded"></div>')
+                    .html(content);
+                $("body").prepend(element);
+
+                let mousex = e.pageX - 20; //Get X coordinates
+                let mousey = e.pageY + 10; //Get Y coordinates
+                let width = element.width();
+                element.css({top: mousey, left: mousex - width}).fadeIn('slow')
+            });
+
+            $(document).click(function (e) {
+                if (e.target.id !== "probability-tooltip-overview" &&
+                    !$(e.target).parents("#probability-tooltip-overview").length) {
+                    $("#probability-tooltip-overview").remove();
+                }
+            });
+        });
+    </script>
 {% endblock %}
 

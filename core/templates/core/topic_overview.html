@@ -12,9 +12,14 @@
                        class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{ topic.name }}</h5>
-                            <small>{{ topic.documents.count}} documents</small>
+                            <small>{{ topic.documents.count }} documents</small>
                         </div>
                         <p class="mb-1">{{ topic.description }}</p>
+                        <p class="mb-1 small">
+                            {% for keyword in topic.keywords.all %}
+                                <span class="badge badge-secondary">{{ keyword.value }}</span>
+                            {% endfor %}
+                        </p>
                     </a>
                 {% endfor %}
 

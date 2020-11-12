@@ -66,3 +66,15 @@
   top: 0;
   left: 0;
 }
+
+.probability-tooltip
+{
+  position: absolute;
+  z-index: 999;
+  background: #ffffff;
+  width: 400px;
+  height: 250px;
+  padding: 1em;
+  border: 1px solid #7c7c7c;
+  overflow-y: scroll;
+}
