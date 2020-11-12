@@ -39,6 +39,11 @@ class Document(models.Model):
     tags = models.ManyToManyField('Tag', related_name="documents")
 
 
+class Keyword(models.Model):
+    value = models.CharField(max_length=128)
+    topic = models.ForeignKey('Topic', related_name='keywords', on_delete=models.CASCADE)
+
+
 class Topic(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
@@ -57,7 +62,7 @@ class DocumentInTopic(models.Model):
 
 class OriginalTopicProbabilities(models.Model):
     """
-    Model for storing the
+    Model for storing the full topic probabilities, so this won't be used as a topic-document relation
     """
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
