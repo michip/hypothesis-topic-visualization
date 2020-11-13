@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.shortcuts import render, get_object_or_404
 from .models import *
 import datetime
@@ -7,10 +7,12 @@ from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
 
+from .statistics import TopicStatistic
+
 
 def home(request):
     return render(request, "core/home.html", dict(
-        topics=Topic.objects.all(), document_count=Document.objects.count()))
+        topics=Topic.objects.all().annotate(length=Count('documents')).order_by('-length'), document_count=Document.objects.count()))
 
 
 def search(request):
@@ -94,11 +96,14 @@ def configuration(request):
 
 
 def topic_overview(request):
-    return render(request, "core/topic_overview.html", dict(topics=Topic.objects.all()))
+    return render(request, "core/topic_overview.html",
+                  dict(topics=Topic.objects.all().annotate(length=Count('documents')).order_by('-length')))
 
 
 def topic(request, id):
     current_topic = get_object_or_404(Topic, pk=id)
+
+    statistics = TopicStatistic(topic=current_topic)
 
     paginator = Paginator(DocumentInTopic.objects.filter(topic=current_topic).order_by("-probability"), 10)
     page_number = request.GET.get('page')
@@ -110,4 +115,6 @@ def topic(request, id):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
-    return render(request, "core/topic.html", dict(topic=current_topic, documents_in_topic=page_obj))
+    return render(request, "core/topic.html", dict(topic=current_topic,
+                                                   documents_in_topic=page_obj,
+                                                   statistics=statistics))

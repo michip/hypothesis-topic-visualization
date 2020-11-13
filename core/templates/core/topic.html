@@ -8,6 +8,10 @@
 
             <div class="text-muted">{{ topic.description }}</div>
 
+            <div>
+                <canvas id="topicOverview" height="90"></canvas>
+            </div>
+
             <p class="mt-1 small">
                 {% for keyword in topic.keywords.all %}
                     <span class="badge badge-secondary">{{ keyword.value }}</span>
@@ -35,12 +39,11 @@
 {% endblock %}
 
 {% block script %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/jquery.qtip.min.js"
-            integrity="sha512-BxJRFdTKV85fhFUw+olPr0B+UEzk8FTLxRB7dAdhoQ7SXmwMECj1I4BlSmZfeoSfy0OVA8xFLTDyObu3Nv1FoQ=="
-            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
     <script>
         $(document).ready(function () {
+
 
             $('.document-probability').click(function (e) {
                 e.preventDefault();
@@ -66,6 +69,92 @@
                     $("#probability-tooltip-overview").remove();
                 }
             });
+
+        });
+
+        $(function () {
+
+            function fillArray(value, len) {
+                var arr = [];
+                for (var i = 0; i < len; i++) {
+                    arr.push(value);
+                }
+                return arr;
+            }
+
+            let statisticsData = {{ statistics.papers_per_week|safe }};
+            let mixedChart = new Chart(document.getElementById("topicOverview"), {
+                type: 'bar',
+                data: {
+                    datasets: [{
+                        label: 'Total Documents',
+                        data: statisticsData["totals"],
+                        type: 'line',
+                        yAxisID: 'A',
+                        borderColor: "#5380b1",
+                        backgroundColor: "#5380b1",
+                        fill: false
+                    }, {
+                        label: 'Documents in week',
+                        data: statisticsData["counts"],
+                        yAxisID: 'B',
+                        backgroundColor: fillArray("#db6f6f", statisticsData["counts"].length)
+                    }],
+                    labels: statisticsData["weeks"]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            id: 'A',
+                            type: 'linear',
+                            position: 'left',
+                            scaleLabel: {
+                                display: true,
+                                labelString: '#total documents'
+                            },
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }, {
+                            id: 'B',
+                            type: 'linear',
+                            position: 'right',
+                            gridLines: {
+                                display: false
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: '#documents in week'
+                            },
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+
+            $(".progress").each(function () {
+
+                let value = $(this).attr('data-value');
+                let left = $(this).find('.progress-left .progress-bar');
+                let right = $(this).find('.progress-right .progress-bar');
+
+                if (value > 0) {
+                    if (value <= 50) {
+                        right.css('transform', 'rotate(' + percentageToDegrees(value) + 'deg)')
+                    } else {
+                        right.css('transform', 'rotate(180deg)')
+                        left.css('transform', 'rotate(' + percentageToDegrees(value - 50) + 'deg)')
+                    }
+                }
+
+            })
+
+            function percentageToDegrees(percentage) {
+                return percentage / 100 * 360
+            }
+
         });
     </script>
 {% endblock %}

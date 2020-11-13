@@ -16,8 +16,8 @@
 
         {% if build_tooltip %}
             <div class="tooltip-content" style="display: none;">
-                <h5>Topic Probabilities</h5>
-                <table class="table table-striped w-100">
+                <h6>Topic Probabilities</h6>
+                <table class="table table-striped w-100 small">
                     {% for rel in document.original_topic_relationships.all %}
                         <tr>
                             <td>
@@ -25,7 +25,7 @@
                                     {{ rel.topic.name }}
                                 </a>
                             </td>
-                            <td>{{ rel.probability }}</td>
+                            <td>{{ rel.probability|to_percent_float }}%</td>
                         </tr>
                     {% endfor %}
                 </table>

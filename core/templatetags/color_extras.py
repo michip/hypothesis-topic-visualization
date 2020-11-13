@@ -1,4 +1,7 @@
 from django import template
+from colour import Color
+red = Color("red")
+COLORS = list(red.range_to(Color("green"),101))
 
 register = template.Library()
 
@@ -6,9 +9,11 @@ register = template.Library()
 def to_percent(value):
     return int(round(value*100))
 
-COLORS = ["#d9534f", "#f0ad4e", "#5bc0de", "#5cb85c"]
+@register.filter
+def to_percent_float(value):
+    return round(value*100, 3)
 
 @register.filter
 def to_color(value):
-    return COLORS[min(len(COLORS)-1, int(round(value*100))//25)]
+    return COLORS[int(round(value*100))]
 
