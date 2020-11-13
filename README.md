@@ -88,4 +88,5 @@ to switch to a different model.
 * Compile the Django project into a docker image
 * Update the settings so that they are compatible with a Docker (maybe Kubernetes environment)
 * Create an imprint
+* Collectstatic should be part of the deployment process --> Remove static files from repo
 * Integrate a persistent database (which should be dependent on the deployment environment)
