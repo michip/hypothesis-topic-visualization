@@ -82,6 +82,7 @@ The topics file should have the following format:
 to switch to a different model.
 * Extend the admin panel so that all models can be modified.
 * Allow and admin to update the data instead of executing a script.
+* Allow an update of the data to be part of a continuous integration process.
 
 ## Make the project production-ready
 * Compile the Django project into a docker image
