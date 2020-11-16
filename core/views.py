@@ -5,6 +5,7 @@ from .models import *
 from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
+import threading
 
 from .statistics import TopicStatistic
 
@@ -69,38 +70,43 @@ def configuration(request):
     if request.method == "GET":
         return render(request, 'core/configuration.html', dict(topic_models=TopicModel.objects.all()))
     elif request.method == "POST":
-        config = SiteConfiguration.get_configuration()
 
-        try:
-            threshold = float(request.POST.get("threshold", ""))
-            topic_amount = int(request.POST.get("topicAmount", ""))
-            topic_model_pk = int(request.POST.get("topicModel", ""))
-            topic_model = TopicModel.objects.get(pk=topic_model_pk)
-        except (ValueError, TopicModel.DoesNotExist):
-            messages.error(request, "Please enter a valid threshold, max amount and topic model.")
-            return render(request, 'core/configuration.html')
+        def update_topics():
+            config = SiteConfiguration.get_configuration()
 
-        config.probability_threshold = threshold
-        config.max_associated_topics = topic_amount
-        config.active_topic_model = topic_model
-        config.save()
+            try:
+                threshold = float(request.POST.get("threshold", ""))
+                topic_amount = int(request.POST.get("topicAmount", ""))
+                topic_model_pk = int(request.POST.get("topicModel", ""))
+                topic_model = TopicModel.objects.get(pk=topic_model_pk)
+            except (ValueError, TopicModel.DoesNotExist):
+                messages.error(request, "Please enter a valid threshold, max amount and topic model.")
+                return render(request, 'core/configuration.html')
 
-        DocumentInTopic.objects.all().delete()
+            config.probability_threshold = threshold
+            config.max_associated_topics = topic_amount
+            config.active_topic_model = topic_model
+            config.save()
 
-        for doc in Document.objects.all():
-            orig_probs = OriginalTopicProbabilities.objects.filter(document=doc, topic__in=Topic.get_active_topics()).order_by("-probability")[
-                         :config.max_associated_topics]
+            DocumentInTopic.objects.all().delete()
 
-            current_value = 0
-            for orig_prob in orig_probs:
-                if current_value < config.probability_threshold:
-                    document_in_topic = DocumentInTopic.objects.create(document=doc,
-                                                                       topic=orig_prob.topic,
-                                                                       probability=orig_prob.probability)
-                    current_value += orig_prob.probability
+            for doc in Document.objects.all():
+                orig_probs = OriginalTopicProbabilities.objects.filter(document=doc, topic__in=Topic.get_active_topics()).order_by("-probability")[
+                             :config.max_associated_topics]
+
+                current_value = 0
+                for orig_prob in orig_probs:
+                    if current_value < config.probability_threshold:
+                        document_in_topic = DocumentInTopic.objects.create(document=doc,
+                                                                           topic=orig_prob.topic,
+                                                                           probability=orig_prob.probability)
+                        current_value += orig_prob.probability
+
+        t = threading.Thread(target=update_topics)
+        t.setDaemon(True)
+        t.start()
 
         messages.success(request, "Configuration updated successfully!")
-
         return render(request, 'core/configuration.html')
 
 
