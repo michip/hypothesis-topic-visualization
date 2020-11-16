@@ -3,3 +3,4 @@ from .models import *
 admin.site.register(DocumentInTopic)
 admin.site.register(Topic)
 admin.site.register(Document)
+admin.site.register(OriginalTopicProbabilities)
