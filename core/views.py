@@ -1,8 +1,7 @@
 from django.db.models import Q, Count
 from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseNotFound
 from .models import *
-import datetime
-import random as rd
 from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import login_required
@@ -12,11 +11,17 @@ from .statistics import TopicStatistic
 
 def home(request):
     return render(request, "core/home.html", dict(
-        topics=Topic.objects.all().annotate(length=Count('documents')).order_by('-length'), document_count=Document.objects.count()))
+        topics=Topic.get_active_topics().annotate(length=Count('documents')).order_by('-length'),
+        document_count=Document.objects.count(),
+        topic_model=SiteConfiguration.get_configuration().active_topic_model), )
+
+
+def imprint(request):
+    return render(request, "core/imprint.html")
 
 
 def search(request):
-    context = dict(topics=Topic.objects.all(), types=Document.TYPE_CHOICES,
+    context = dict(topics=Topic.get_active_topics(), types=Document.TYPE_CHOICES,
                    form=dict(query="", topics=[]))
 
     if request.method == "GET":
@@ -58,36 +63,40 @@ def search(request):
 
         return render(request, "core/search.html", context)
 
+
 @login_required
 def configuration(request):
     if request.method == "GET":
-        return render(request, 'core/configuration.html')
+        return render(request, 'core/configuration.html', dict(topic_models=TopicModel.objects.all()))
     elif request.method == "POST":
         config = SiteConfiguration.get_configuration()
 
         try:
             threshold = float(request.POST.get("threshold", ""))
             topic_amount = int(request.POST.get("topicAmount", ""))
-        except ValueError:
-            messages.error(request, "Please enter a valid threshold and max amount!")
+            topic_model_pk = int(request.POST.get("topicModel", ""))
+            topic_model = TopicModel.objects.get(pk=topic_model_pk)
+        except (ValueError, TopicModel.DoesNotExist):
+            messages.error(request, "Please enter a valid threshold, max amount and topic model.")
             return render(request, 'core/configuration.html')
 
         config.probability_threshold = threshold
         config.max_associated_topics = topic_amount
+        config.active_topic_model = topic_model
         config.save()
 
         DocumentInTopic.objects.all().delete()
 
         for doc in Document.objects.all():
-            orig_probs = OriginalTopicProbabilities.objects.filter(document=doc).order_by("-probability")[
+            orig_probs = OriginalTopicProbabilities.objects.filter(document=doc, topic__in=Topic.get_active_topics()).order_by("-probability")[
                          :config.max_associated_topics]
 
             current_value = 0
             for orig_prob in orig_probs:
                 if current_value < config.probability_threshold:
-                    document_in_topic = DocumentInTopic(document=doc,
-                                                        topic=orig_prob.topic, probability=orig_prob.probability)
-                    document_in_topic.save()
+                    document_in_topic = DocumentInTopic.objects.create(document=doc,
+                                                                       topic=orig_prob.topic,
+                                                                       probability=orig_prob.probability)
                     current_value += orig_prob.probability
 
         messages.success(request, "Configuration updated successfully!")
@@ -97,11 +106,16 @@ def configuration(request):
 
 def topic_overview(request):
     return render(request, "core/topic_overview.html",
-                  dict(topics=Topic.objects.all().annotate(length=Count('documents')).order_by('-length')))
+                  dict(topics=Topic.get_active_topics().annotate(length=Count('documents')).order_by('-length')))
 
 
 def topic(request, id):
     current_topic = get_object_or_404(Topic, pk=id)
+
+    config = SiteConfiguration.get_configuration()
+
+    if config.active_topic_model != current_topic.topic_model:
+        return HttpResponseNotFound()
 
     statistics = TopicStatistic(topic=current_topic)
 

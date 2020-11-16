@@ -15,13 +15,17 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('-f', '--documents-file', required=True)
 parser.add_argument('-t', '--topics-file', required=True)
-parser.add_argument('--clear', action='store_true')
+parser.add_argument('-n', '--model-name', required=True)
+parser.add_argument('--clear-topics', action='store_true')
+parser.add_argument('--clear-documents', action='store_true')
 
 args = parser.parse_args()
 
-if args.clear:
+if args.clear_documents:
     Document.objects.all().delete()
     Tag.objects.all().delete()
+
+if args.clear_topics:
     Topic.objects.all().delete()
 
 with open(args.documents_file, 'r') as f:
@@ -31,9 +35,13 @@ with open(args.topics_file, 'r') as f:
     topics_json = json.load(f)
 
 topics = []
+
+topic_model = TopicModel.objects.create(name=args.model_name)
+
 for top in topics_json["topics"]:
     topic, created = Topic.objects.get_or_create(name=top['title'],
-                                 description=top['description'])
+                                                 description=top['description'],
+                                                 topic_model=topic_model)
 
     if created:
         for keyword in top["keywords"]:

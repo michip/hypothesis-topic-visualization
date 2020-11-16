@@ -29,6 +29,15 @@
                 </small>
             </div>
 
+            <div class="form-group">
+                <label for="topicModelInput">Topic Model</label>
+                <select class="form-control" name="topicModel" id="topicModelInput">
+                    {% for topic_model in topic_models %}
+                        <option value="{{ topic_model.pk }}">{{ topic_model.name }} ({{ topic_model.created_at }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="text-right">
                 <button type="submit" class="btn btn-primary">Update</button>
             </div>

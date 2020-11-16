@@ -8,14 +8,16 @@ class SiteConfiguration(models.Model):
     """
     probability_threshold = models.FloatField()
     max_associated_topics = models.IntegerField()
+    active_topic_model = models.ForeignKey('TopicModel', on_delete=models.SET_NULL, null=True)
 
     @staticmethod
     def get_configuration():
-        return get_object_or_404(SiteConfiguration, pk=1)
+        return SiteConfiguration.objects.get(pk=1)
 
 
 class Tag(models.Model):
     name = models.CharField(max_length=100)
+
 
 class Document(models.Model):
 
@@ -42,17 +44,39 @@ class Document(models.Model):
     def original_topic_relationships(self):
         return OriginalTopicProbabilities.objects.filter(document=self).order_by('-probability')
 
+    def __str__(self):
+        return self.url_identifier
 
 class Keyword(models.Model):
     value = models.CharField(max_length=128)
     topic = models.ForeignKey('Topic', related_name='keywords', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.value
+
+
+class TopicModel(models.Model):
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.created_at})"
 
 
 class Topic(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
     documents = models.ManyToManyField(Document, through='DocumentInTopic', related_name="topics")
+    topic_model = models.ForeignKey(TopicModel,
+                                    on_delete=models.CASCADE,
+                                    related_name='topics', null=True)
 
+    @staticmethod
+    def get_active_topics():
+        return Topic.objects.filter(topic_model=SiteConfiguration.get_configuration().active_topic_model)
+
+    def __str__(self):
+        return self.name
 
 class DocumentInTopic(models.Model):
     """
@@ -62,6 +86,9 @@ class DocumentInTopic(models.Model):
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     probability = models.FloatField()
+
+    def __str__(self):
+        return f"{self.document}-{self.topic}:{self.probability}"
 
 
 class OriginalTopicProbabilities(models.Model):
