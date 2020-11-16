@@ -20,6 +20,6 @@ for prob in tqdm(data):
     t = OriginalTopicProbabilities(**prob['fields'])
     probability_objects.append(t)
 
-    if len(probability_objects) == 500000:
+    if len(probability_objects) == 50000:
         OriginalTopicProbabilities.objects.bulk_create(probability_objects)
         probability_objects.clear()
