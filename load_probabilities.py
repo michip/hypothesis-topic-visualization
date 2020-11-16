@@ -10,13 +10,16 @@ OriginalTopicProbabilities.objects.all().delete()
 with open('probabilities.json', 'r') as f:
     data = json.load(f)
 
-
 probability_objects = []
+
 for prob in tqdm(data):
+
     prob['fields']['document_id'] = prob['fields']['document']
     prob['fields']['topic_id'] = prob['fields']['topic']
     del prob['fields']['topic'], prob['fields']['document']
     t = OriginalTopicProbabilities(**prob['fields'])
     probability_objects.append(t)
 
-OriginalTopicProbabilities.objects.bulk_create(probability_objects)
+    if len(probability_objects) == 500000:
+        OriginalTopicProbabilities.objects.bulk_create(probability_objects)
+        probability_objects.clear()
