@@ -42,7 +42,8 @@ class Document(models.Model):
 
     @property
     def original_topic_relationships(self):
-        return OriginalTopicProbabilities.objects.filter(document=self).order_by('-probability')
+        return OriginalTopicProbabilities.objects.filter(document=self, topic__in=Topic.get_active_topics())\
+            .order_by('-probability')
 
     def __str__(self):
         return self.url_identifier
