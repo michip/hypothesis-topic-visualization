@@ -71,6 +71,8 @@ for doc in tqdm(document_json):
             document.tags.add(t)
             t.save()
 
+
+original_topic_probs = []
 for topics_assigment in tqdm(topics_json["documents"]):
     document = Document.objects.get(url_identifier=topics_assigment["id"])
 
@@ -78,4 +80,7 @@ for topics_assigment in tqdm(topics_json["documents"]):
         if isinstance(k, list):
             k = k[0]
 
-        OriginalTopicProbabilities.objects.get_or_create(document=document, topic=topic, probability=k)
+        original_topic_probs.append(OriginalTopicProbabilities(document=document, topic=topic, probability=k))
+
+
+OriginalTopicProbabilities.objects.bulk_create(original_topic_probs)
