@@ -1,0 +1,24 @@
+version: "3.3"
+
+services:
+  db:
+    image: postgres
+    env_file:
+      - env/db.env
+  web:
+    build: .
+    command:
+      - /bin/bash
+      - -c
+      - |
+        python manage.py migrate
+        python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    env_file:
+      - env/prod.env
+      - env/db.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
